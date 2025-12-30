@@ -49,7 +49,7 @@ func TestGetNextTaskID(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			taskID := GetNextTaskID(tc.in)
+			taskID := getNextTaskID(tc.in)
 			assert.Equal(t, tc.out, taskID)
 		})
 	}
@@ -66,8 +66,9 @@ func TestGetTaskByID(t *testing.T) {
 			UpdatedAt:   time.Now(),
 		},
 	}
-	task, err := GetTaskByID(tasks, 10)
+	i, task, err := GetTaskByID(tasks, 10)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, task)
+	assert.Equal(t, 0, i)
 	assert.Equal(t, 10, task.ID)
 }

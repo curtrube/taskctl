@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"time"
 )
@@ -35,7 +36,7 @@ func main() {
 }
 
 // GetNextTaskID returns the next available task ID.
-func GetNextTaskID(tasks []*Task) int {
+func getNextTaskID(tasks []*Task) int {
 	taskID := 1
 	// If tasks is not zero
 	if len(tasks) > 0 {
@@ -51,13 +52,13 @@ func GetNextTaskID(tasks []*Task) int {
 }
 
 // GetTaskByID retrieves a task by the provided ID.
-func GetTaskByID(tasks []*Task, ID int) (Task, error) {
-	for _, t := range tasks {
+func GetTaskByID(tasks []*Task, ID int) (int, *Task, error) {
+	for i, t := range tasks {
 		if t.ID == ID {
-			return *t, nil
+			return i, t, nil
 		}
 	}
-	return Task{}, fmt.Errorf("No matching task found with ID: %d", ID)
+	return 0, &Task{}, fmt.Errorf("No matching task found with ID: %d", ID)
 }
 
 func addCmd(args []string, tasks []*Task) {
@@ -67,7 +68,7 @@ func addCmd(args []string, tasks []*Task) {
 	}
 	log.Printf("adding a new task...")
 	// Get the next available task ID
-	taskID := GetNextTaskID(tasks)
+	taskID := getNextTaskID(tasks)
 	task := NewTask(taskID, args[0])
 
 	tasks = append(tasks, task)
@@ -77,16 +78,24 @@ func addCmd(args []string, tasks []*Task) {
 	fmt.Printf("Task added successfully (ID: %d)\n", task.ID)
 }
 
+func convertStringToInt(s string) (int, error) {
+	int, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("convert string to int: %v", err)
+	}
+	return int, nil
+}
+
 func listCmd(args []string, tasks []*Task) {
 	log.Print("Listing tasks...")
 	// TODO: if length args > 0 match taskID
 	if len(args) > 0 {
 		// get the task id from args
-		ID, err := strconv.Atoi(args[0])
+		ID, err := convertStringToInt(args[0])
 		if err != nil {
-			log.Fatal("convert string task ID to int")
+			log.Fatal(err)
 		}
-		task, err := GetTaskByID(tasks, ID)
+		_, task, err := GetTaskByID(tasks, ID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -103,6 +112,26 @@ func listCmd(args []string, tasks []*Task) {
 func deleteCmd(args []string, tasks []*Task) {
 	log.Print("Deleteing task...")
 	fmt.Println(args)
+
+	// Delete requires a param of ID
+	ID, err := convertStringToInt(args[0])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Should we check to make sure the task exists first?
+	// Not necessarily, but we will need the index for the task.
+	i, task, err := GetTaskByID(tasks, ID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// If so, go ahead and delete by calling slice.Delete()
+	log.Printf("Deleting task with ID: %d at index: %d", task.ID, i)
+	updatedTasks := slices.Delete(tasks, i, i+1)
+
+	// Write the tasks back to the file
+	writeTasks(updatedTasks)
 }
 
 type Task struct {
