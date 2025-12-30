@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -27,9 +28,9 @@ func main() {
 	case "add":
 		addCmd(os.Args[2:], tasks)
 	case "list":
-		listCmd(os.Args[2:])
+		listCmd(os.Args[2:], tasks)
 	case "delete":
-		deleteCmd(os.Args[2:])
+		deleteCmd(os.Args[2:], tasks)
 	}
 }
 
@@ -49,6 +50,16 @@ func GetNextTaskID(tasks []*Task) int {
 	return taskID
 }
 
+// GetTaskByID retrieves a task by the provided ID.
+func GetTaskByID(tasks []*Task, ID int) (Task, error) {
+	for _, t := range tasks {
+		if t.ID == ID {
+			return *t, nil
+		}
+	}
+	return Task{}, fmt.Errorf("No matching task found with ID: %d", ID)
+}
+
 func addCmd(args []string, tasks []*Task) {
 	if len(args) < 1 {
 		log.Println("add cmd missing args TODO: Add Add help")
@@ -58,18 +69,39 @@ func addCmd(args []string, tasks []*Task) {
 	// Get the next available task ID
 	taskID := GetNextTaskID(tasks)
 	task := NewTask(taskID, args[0])
-	fmt.Printf("adding new task: %+v", task)
+
 	tasks = append(tasks, task)
-	writeTasks(tasks)
+	writeTasks(tasks) // TODO: interesting this doesn't return an error
+
+	//fmt.Printf("adding new task: %+v", task) // TODO convert this to debug log
+	fmt.Printf("Task added successfully (ID: %d)\n", task.ID)
 }
 
-func listCmd(args []string) {
-	fmt.Println("Listing tasks..")
-	fmt.Println(args)
+func listCmd(args []string, tasks []*Task) {
+	log.Print("Listing tasks...")
+	// TODO: if length args > 0 match taskID
+	if len(args) > 0 {
+		// get the task id from args
+		ID, err := strconv.Atoi(args[0])
+		if err != nil {
+			log.Fatal("convert string task ID to int")
+		}
+		task, err := GetTaskByID(tasks, ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%+v\n", task)
+
+	} else {
+		fmt.Println("| ID | Description | Status | Created | LastUpdated |")
+		for _, t := range tasks {
+			fmt.Printf("| %d  | %s | %s | %s | %s |\n", t.ID, t.Description, t.Status, t.CreatedAt, t.UpdatedAt)
+		}
+	}
 }
 
-func deleteCmd(args []string) {
-	fmt.Println("Deleting task with id..")
+func deleteCmd(args []string, tasks []*Task) {
+	log.Print("Deleteing task...")
 	fmt.Println(args)
 }
 

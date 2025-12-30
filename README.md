@@ -19,20 +19,31 @@
 
 ```
 # Adding a new task
-taskctl add "mow the yard"
+
+$ taskctl add "mow the yard"
+
 # Output: Task added successfully (ID: 1)
 
+
+# Updating and deleting tasks
+
+$ taskctl update 1 "buy groceries"
+$ taskctl delete 1
+
 # Marking a task as in progress or done
-taskctl mark-in-progress 1
-taskctl mark-done 1
+
+$ taskctl mark-in-progress 1
+$ taskctl mark-done 1
 
 # Listing all tasks
-taskctl list
+
+$ taskctl list
 
 # List tasks by status
-taskctl list done
-taskctl list in-progress
-taskctl list todo
+
+$ taskctl list done
+$ taskctl list in-progress
+$ taskctl list todo
 ```
 
 ## Task Properties

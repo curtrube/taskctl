@@ -8,22 +8,6 @@ import (
 )
 
 func TestGetNextTaskID(t *testing.T) {
-	//tasks := []*Task{
-	//	{
-	//		ID:          1,
-	//		Description: "make test pass",
-	//		Status:      "todo",
-	//		CreatedAt:   time.Now(),
-	//		UpdatedAt:   time.Now(),
-	//	},
-	//	{
-	//		ID:          2,
-	//		Description: "make test pass 2",
-	//		Status:      "todo",
-	//		CreatedAt:   time.Now(),
-	//		UpdatedAt:   time.Now(),
-	//	},
-	//}
 	tests := []struct {
 		name string
 		in   []*Task
@@ -70,4 +54,20 @@ func TestGetNextTaskID(t *testing.T) {
 		})
 	}
 
+}
+
+func TestGetTaskByID(t *testing.T) {
+	tasks := []*Task{
+		{
+			ID:          10,
+			Description: "Get task by ID",
+			Status:      "todo",
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+	}
+	task, err := GetTaskByID(tasks, 10)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, task)
+	assert.Equal(t, 10, task.ID)
 }
