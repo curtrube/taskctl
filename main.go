@@ -30,6 +30,10 @@ func main() {
 		addCmd(os.Args[2:], tasks)
 	case "list":
 		listCmd(os.Args[2:], tasks)
+	case "mark-in-progress":
+		markInProgressCmd(os.Args[2:], tasks)
+	case "mark-done":
+		markDoneCmd(os.Args[2:], tasks)
 	case "delete":
 		deleteCmd(os.Args[2:], tasks)
 	}
@@ -66,6 +70,7 @@ func addCmd(args []string, tasks []*Task) {
 		log.Println("add cmd missing args TODO: Add Add help")
 		os.Exit(0)
 	}
+
 	log.Printf("adding a new task...")
 	// Get the next available task ID
 	taskID := getNextTaskID(tasks)
@@ -107,6 +112,48 @@ func listCmd(args []string, tasks []*Task) {
 			fmt.Printf("| %d  | %s | %s | %s | %s |\n", t.ID, t.Description, t.Status, t.CreatedAt, t.UpdatedAt)
 		}
 	}
+}
+
+// TODO: between this and markDoneCmd() we should be able to make a single function.
+
+func markInProgressCmd(args []string, tasks []*Task) {
+	log.Println("Marking a task in-progress")
+	fmt.Println(args)
+
+	ID, err := convertStringToInt(args[0])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, task, err := GetTaskByID(tasks, ID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Update status to in-progress
+	task.InProgress()
+
+	writeTasks(tasks)
+}
+
+func markDoneCmd(args []string, tasks []*Task) {
+	log.Println("Marking a task done")
+	fmt.Println(args)
+
+	ID, err := convertStringToInt(args[0])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, task, err := GetTaskByID(tasks, ID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Update status to in-progress
+	task.Done()
+
+	writeTasks(tasks)
 }
 
 func deleteCmd(args []string, tasks []*Task) {
@@ -152,6 +199,20 @@ func NewTask(taskID int, description string) *Task {
 		Status:      "todo", // todo/new, in-progress, done
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
+	}
+}
+
+// InProgress updates the status to "in-progress"
+func (t *Task) InProgress() {
+	if t.Status != "in-progress" {
+		t.Status = "in-progress"
+	}
+}
+
+// Done updates the task status to done
+func (t *Task) Done() {
+	if t.Status != "done" {
+		t.Status = "done"
 	}
 }
 

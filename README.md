@@ -4,9 +4,9 @@
 
 ## Requirements
 
-- [ ] Add, Update, and Delete tasks
-- [ ] Mark a task as in progress or completed
-- [ ] List all tasks
+- [x] Add, Update, and Delete tasks
+- [x] Mark a task as in progress or completed
+- [x] List all tasks
 - [ ] List all completed tasks
 - [ ] List all in progress tasks
 - [ ] List all todo tasks
